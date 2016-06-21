@@ -5,28 +5,10 @@ app.init = function() {
   this._friends = [];
   this.server = 'https://api.parse.com/1/classes/messages';
   $(() => {
-    $('#post-button').on('click', function() {
-      var $username = $('input[name="username"]');
-      var $text = $('textarea[name="message"]');
-      var $roomname = $('input[name="roomname"]');
 
-      // TODO: if username or text is empty string, throw a red error
+    // console.log($('#send .submit'));
 
-      var roomname = $roomname.val() || $('#roomSelect').val();
-      
-      var message = {
-        username: $username.val(), 
-        text: $text.val(),
-        roomname: roomname
-      };
-
-      app.send(message);
-
-      // Clear the text in the input fields:
-      $username.val('');
-      $text.val('');
-      $roomname.val('');
-    });
+    $('#send').on('submit', app.handleSubmit);
 
     $('#roomSelect').on('change', app._refreshMessages);
 
@@ -39,6 +21,32 @@ app.init = function() {
 
     app.fetch();
   });
+};
+
+app.handleSubmit = function(event) {
+
+  event.preventDefault();
+
+  var $username = $('input[name="username"]');
+  var $text = $('input[name="message"]');
+  var $roomname = $('input[name="roomname"]');
+
+  // TODO: if username or text is empty string, throw a red error
+
+  var roomname = $roomname.val() || $('#roomSelect').val();
+  
+  var message = {
+    username: $username.val(), 
+    text: $text.val(),
+    roomname: roomname
+  };
+
+  app.send(message);
+
+  // Clear the text in the input fields:
+  $username.val('');
+  $text.val('');
+  $roomname.val('');
 };
 
 app.addFriend = function(username) {
