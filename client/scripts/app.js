@@ -31,7 +31,7 @@ app.init = function() {
     $('#roomSelect').on('change', app._refreshMessages);
 
     $('#chats').on('click', '.username', function() {    
-      app._friends.push($(this).text());
+      app.addFriend($(this).text());
       app.fetch();
     });
 
@@ -39,6 +39,10 @@ app.init = function() {
 
     app.fetch();
   });
+};
+
+app.addFriend = function(username) {
+  this._friends.push(username);
 };
 
 app.fetch = function(roomname) {
