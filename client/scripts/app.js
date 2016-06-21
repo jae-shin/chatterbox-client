@@ -1,17 +1,5 @@
-// YOUR CODE HERE:
-
-//Global object to house all rooms
-var rooms = {};
-
-var displayMessages = function(data) {
-  $('.chat').remove();
-  var results = data.results;
-  results.forEach(function(message) {
-    var $message = $('<div class="chat"></div>');
-    $message.text(message.username + ': ' + message.text);
-    $('#chats').append($message);
-  });
-};
+//Global object to house all roomnames
+var rooms = {all: 'all'};
 
 var getMessages = function() {
   $.ajax({
@@ -29,6 +17,30 @@ var getMessages = function() {
     },
     error: function(data) {
       console.error('chatterbox: failed to retrieve messages', data);
+    }
+  });
+};
+
+var displayMessages = function(data) {
+  $('.chat').remove();
+  var results = data.results;
+  results.forEach(function(message) {    
+
+    var $message = $('<div class="chat"></div>');
+    $message.text(message.username + ': ' + message.text);
+
+    if (message.roomname) {
+      $message.attr('room', message.roomname);
+    } else {
+      $message.attr('room', 'all');
+    }
+    
+    $('#chats').append($message);
+
+    //Hide messages if the room selected does not match
+    if ($('#room-selector').val() !== 'all' &&
+        $('#room-selector').val() !== message.roomname) {
+      $message.hide();
     }
   });
 };
@@ -69,7 +81,7 @@ var updateRooms = function(data) {
         text: message.roomname 
       }));
     }
-    
+
   });
 };
 
@@ -78,21 +90,33 @@ $(document).ready(function() {
   var $refreshButton = $('<button id=refresh>Refresh!</button>');
   $('#main').append($refreshButton);
 
+  // TODO: make refreshing automatic
   $refreshButton.on('click', function() {
     getMessages();
   });
 
   var $postButton = $('#post');
   $postButton.on('click', function() {
-    var username = $('input[name="username"]').val();
-    var text = $('textarea[name="message"]').val();
-    var roomname = $('input[name="roomname"]').val();
+    var $username = $('input[name="username"]');
+    var $text = $('textarea[name="message"]');
+    var $roomname = $('input[name="roomname"]');
     var message = {
-      username: username, 
-      text: text,
-      roomname: roomname
+      username: $username.val(), 
+      text: $text.val(),
+      roomname: $roomname.val()
     };
     postMessage(message);
+
+    // Clear the text in the input fields:
+    $username.val('');
+    $text.val('');
+    $roomname.val('');
+  });
+
+  var $roomSelector = $('#room-selector');
+  $roomSelector.on('change', function() {
+    console.log(this.value); // or $(this).val()
+    getMessages();
   });
 
   getMessages();
