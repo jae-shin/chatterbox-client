@@ -1,5 +1,6 @@
 //Global object to house all roomnames
 var rooms = {all: 'all'};
+var friends = [];
 
 var getMessages = function() {
   $.ajax({
@@ -11,7 +12,7 @@ var getMessages = function() {
     },
     contentType: 'application/json',
     success: function(data) {
-      console.log('chatterbox: messages retrieved');
+      // console.log('chatterbox: messages retrieved');
       updateRooms(data);
       displayMessages(data);
     },
@@ -27,7 +28,18 @@ var displayMessages = function(data) {
   results.forEach(function(message) {    
 
     var $message = $('<div class="chat"></div>');
-    $message.text(message.username + ': ' + message.text);
+    var $username = $('<span class="username"></span>');
+    $username.text(message.username);
+
+    if (friends.indexOf(message.username) > -1) {
+      $message.addClass('friend');
+    }
+
+    var $text = $('<span></span>');
+    $text.text(': ' + message.text);
+
+    $message.append($username);
+    $message.append($text);
 
     if (message.roomname) {
       $message.attr('room', message.roomname);
@@ -87,19 +99,25 @@ var updateRooms = function(data) {
 
 
 $(document).ready(function() {
-  var $refreshButton = $('<button id=refresh>Refresh!</button>');
-  $('#main').append($refreshButton);
+  //var $refreshButton = $('<button id=refresh>Refresh!</button>');
+  //$('#main').append($refreshButton);
 
-  // TODO: make refreshing automatic
-  $refreshButton.on('click', function() {
+  // $refreshButton.on('click', function() {
+  //   getMessages();
+  // });
+
+  setInterval(function() {
     getMessages();
-  });
+  }, 5000);
 
   var $postButton = $('#post');
   $postButton.on('click', function() {
     var $username = $('input[name="username"]');
     var $text = $('textarea[name="message"]');
     var $roomname = $('input[name="roomname"]');
+
+    // TODO: if username or text is empty string, through a red error
+
     var message = {
       username: $username.val(), 
       text: $text.val(),
@@ -115,11 +133,23 @@ $(document).ready(function() {
 
   var $roomSelector = $('#room-selector');
   $roomSelector.on('change', function() {
-    console.log(this.value); // or $(this).val()
+    // console.log(this.value); // or $(this).val()
+    getMessages();
+  });
+
+  // Allow user to befriend other users by clicking on their user name
+  // var $username = $('.username');
+  // $username.on('click', function() {
+  //   console.log($username.val());
+  // });
+
+  $('#chats').on('click', '.username', function() {    
+    friends.push($(this).text());
     getMessages();
   });
 
   getMessages();
+
 });
 
 
