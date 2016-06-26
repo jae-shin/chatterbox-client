@@ -15,27 +15,17 @@
   <body>
     <div id="main">
       <h1>chatterbox</h1>
-      <!-- Your HTML goes here! -->
-    </div>
-    <div id="room">
-    <span>Room: </span>
-    <select id="roomSelect">
-      <option selected="selected">all</option>
-    </select>
-    </div>
-    <div id="user">
-      <h4>Post your own message!</h4>
-
+      <div id="rooms">
+        Room:
+        <select id="roomSelect">
+          <option value="all" selected>all</option>
+        </select>
+      </div>
       <form action="#" id="send" method="post">
-        Username:
-        <input type='text' name='username' minlength='3' maxlength='12'><br>
-        Roomname:
-        <input type='text' name='roomname' maxlength='20'><br>
-        Message:
-        <input type='text' id='message' name='message' maxlength='140'><br>
-        <input type='submit' class='submit' value='Post!'>
+        Message: <input type="text" name="message" id="message"/>
+        Roomname: <input type="text" name="roomname" id="roomname"/>
+        <input type="submit" name="submit" class="submit"/>
       </form>
-
     </div>
     <div id="chats"></div>
   </body>
