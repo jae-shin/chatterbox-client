@@ -26,7 +26,12 @@ document.addEventListener('DOMContentLoaded', function() {
         data: JSON.stringify(message),
         contentType: 'application/json',
         success: function (data) {
-          app.fetch();
+          if (message.roomname !== $('#roomSelect').val()) {
+            app.addRoom(message.roomname);
+            $('#roomSelect').val(message.roomname).trigger('change');
+          } else {
+            app.fetch();
+          }
           console.log('chatterbox: Message sent');
         },
         error: function (data) {
@@ -46,8 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
         where: {createdAt: {$gt: app.mostRecentCreatedAt}}
       };
 
-      roomname = $('#roomSelect').val();
-
+      roomname = $('#roomSelect option:selected').text();
       if (roomname !== defaultRoomname) {
         queryObject.where.roomname = roomname;
       }
@@ -64,17 +68,16 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           
           app.mostRecentCreatedAt = messages[0].createdAt;
-          
+
+          if (option) {
+            app.clearMessages();
+          }
+
           for (var i = messages.length - 1; i >= 0; i--) {
             app.addMessage(messages[i]);
           }
 
-          messages.forEach(message => {
-            if (!(message.roomname in app.roomnames)) {
-              app.roomnames[message.roomname] = true;
-              app.addRoom(message.roomname);
-            }
-          });
+          messages.forEach(message => app.addRoom(message.roomname));
 
           console.log('chatterbox: Message(s) retreived');
         },
@@ -101,8 +104,11 @@ document.addEventListener('DOMContentLoaded', function() {
     },
 
     addRoom: function(roomname) {
-      let $roomname = $('<option/>').attr('value', roomname).text(roomname);
-      $('#roomSelect').append($roomname);
+      if (!(roomname in app.roomnames)) {
+        app.roomnames[roomname] = true;
+        let $roomname = $('<option/>').val(roomname).text(roomname);
+        $('#roomSelect').append($roomname);
+      }
     },
 
     addFriend: function(event) {
@@ -118,18 +124,22 @@ document.addEventListener('DOMContentLoaded', function() {
     },
 
     handleSubmit: function(event) {
+      let roomname = $('#roomname').val();
+      if (roomname === '') {
+        roomname = $('#roomSelect option:selected').val();
+      }
       let message = {
         username: app.username,
         text: $('#message').val(),
-        roomname: $('#roomSelect option:selected').val()
+        roomname: roomname
       };
       $('#message').val('');
+      $('#roomname').val('');
       app.send(message);
       event.preventDefault();
     },
 
     handleRoomChange: function() {
-      app.clearMessages();
       app.fetch(true);
     }
   };
